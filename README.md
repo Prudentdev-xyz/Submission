@@ -1,66 +1,22 @@
-## Foundry
+# Uniswap V2 USDT & WETH Interactions
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+This repository contains a smart contract (`Submission.sol`) that interacts with Uniswap V2 to perform token swaps and add liquidity, specifically designed to safely handle USDT's non-standard ERC20 behavior.
 
-Foundry consists of:
+## Overview
+USDT on Ethereum mainnet does not return a boolean on standard operations like `approve` or `transferFrom`, which causes standard OpenZeppelin ERC20 interfaces to revert. This project implements low-level `.call` wrappers to safely pull USDT, approve the Uniswap V2 Router, and handle routing without failing.
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+### Features
+* **Safe USDT Wrappers**: Custom `_safeTransferFrom`, `_safeApprove`, and `_safeTransfer` implementations.
+* **`swapUsdtForWeth`**: Pulls USDT from the caller and executes a swap for WETH on Uniswap V2.
+* **`addUsdtWethLiquidity`**: Pulls both USDT and WETH from the caller, provisions liquidity to the UniswapV2 pool, and refunds any unused dust to the caller.
 
-## Documentation
+## Testing
+This project uses Foundry. The test suite forks mainnet to verify interactions against live Uniswap contracts and mainnet whale accounts.
 
-https://book.getfoundry.sh/
+```bash
+# Add an archive node RPC to your .env file
+echo "MAINNET_RPC_URL=https://your_rpc_url_here" > .env
 
-## Usage
-
-### Build
-
-```shell
-$ forge build
-```
-
-### Test
-
-```shell
-$ forge test
-```
-
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
+# Run the tests against mainnet fork
+forge test -vvv
 ```
